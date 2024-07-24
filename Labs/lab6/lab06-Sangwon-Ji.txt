@@ -1,0 +1,91 @@
+cd ~/DESKTOP/STAT133/stat133-lab06
+
+mkdir stat133-lab06
+
+cd stat133-lab06
+
+MacBook-Pro:stat133-lab06 sangwonji$ ls
+lab06-Sangwon-Ji.txt	ropes.csv
+names5.txt		ropes.txt
+
+cut -f 1 -d "," ropes.csv | tail +2 | head -n 5 | sort -r 
+
+- Modify the previous pipe to get the names of the first 5 ropes, from the file ropes.txt, sorting values alphabetically in decreasing order
+
+cut -f 1 -d "," ropes.csv | tail +2 | head -n 5 | sort -r 
+
+- Using ropes.txt, write a pipe to get the names of the last 5 ropes (no sorting required)
+
+cut -f 1 -d "," ropes.csv | tail +2 | tail -n 5
+
+- Using ropes.txt, write a pipe to get the Name and Brand of the first 5 ropes
+
+cut -f 1 -d "," ropes.csv | tail +2 | head -n 5
+
+
+- Write a pipe to get the Name, Diameter, and Weight of the last 5 ropes in ropes.txt
+
+cut -f 1,3,4 -d "," ropes.csv | tail +2 | tail -n 5
+
+- Take the previous command and pipe it again with sort in order to display the Brand categories (and their counts) in increasing order
+
+cut -f 2 -d "," ropes.csv | tail +2 | sort | uniq -c | sort
+
+- With ropes.csv, write a pipe to list (i.e. display) the unique categories of Falls
+
+cut -f 5 -d "," ropes.csv | tail +2 | sort | uniq
+
+- With ropes.csv, write a pipe to list (i.e. display) the unique categories of Falls and their counts
+
+cut -f 5 -d "," ropes.csv | tail +2 | sort | uniq -c
+
+- With ropes.txt, pipe grep with wc to count the number of ropes from brand Edelrid
+
+grep "Edelrid" ropes.csv | wc -l
+
+- With ropes.txt, write a similar pipe to the one above to find how many Sterling ropes are in this file
+
+grep "Sterling" ropes.csv | wc - l
+
+- With ropes.txt, write a pipe to create a file sterling-ropes.txt containing the data for ropes of brand Sterling:
+
+grep "Sterling" ropes.csv >sterling-ropes.txt
+
+-  With ropes.txt, write commands to create a file pmi-ropes.txt containing the data for ropes of brand PMI, arranged by name alphabetically. This file should have column names in the first line (i.e. first row).
+
+Head -n 1 ropes.csv > pmi-ropes.txt 
+Grep "PMI" ropes.txt | sort >>pmi-ropes.txt
+
+- With ropes.txt, write a pipeline to obtain the unique categories of Brand in decreasing order. The output of the pipeline should contain only the categories (NOT the counts). HINT: cut, sort, and uniq are your friends.
+
+Cut -f 2 -d "," ropes.csv | tail(2) | sort -r -n |uniq
+
+- With ropes.csv, write a pipeline to obtain the counts (i.e.  frequencies) of the different Weight values (column 4), displayed from largest to smallest (i.e. descending order). The first column corresponds to count, the second column corresponds to weight. Redirect the output to a text file weight-counts.txt. HINT: cut, tail, sort, uniq; and redirection > operator, are your friends.
+
+Cut -f 4 -d "," ropes.csv | tail +2 | sort | uniq -c
+
+- With ropes.csv, use output redirection commands to create a CSV file mammut-ropes.csv containing data for the Mammut brand. Your CSV file should include column names in the first row. HINT: redirection operators > and >>, as well as head and grep are your friends.
+
+Head -n 1 ropes.csv >mammut-ropes.csv
+Grep "Mammut" ropes.csv >> mammut-ropes.csv
+
+- Use the previously created file mammut-ropes.csv to select, in separate commands, the columns Name, Weight, and Force. Store each column in its own text file: name.txt, weight.txt, and force.txt
+
+Cut -f 1 -d "," mammut-ropes.csv > name.txt
+Cut -f 4 -d "," mammut-ropes.csv > weight.txt
+Cut -f 6 -d "," mammut-ropes.csv > force.txt
+
+- Use the previously created files name.txt, weight.txt, and force.txt to paste them (i.e. merge them), in that order, into a new CSV file mammut-forces.csv (comma separated values!!!).
+
+Paste -d "," name.txt weight.txt force.txt > mammut-forces.csv
+
+- Use ropes.txt, to write a pipeline to list (display) the five heaviest ropes (their Name, Brand, and Weight) in decreasing order (by weight).
+
+Cut -f 4 -d "," ropes.txt | tail +2 | sort -r -n | head -n 5
+
+
+
+
+
+
+

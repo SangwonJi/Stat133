@@ -1,0 +1,419 @@
+---
+title: "Lab 11: Basic String Manipulation"
+subtitle: "Stat 133, Fall 2022"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+
+> ### Learning Objectives
+>
+> - String manipulation
+> - Base R functions for strings
+> - String manipulation
+
+
+### General Instructions
+
+- Write your descriptions, explanations, and code in an `Rmd` (R markdown) file.
+- Name this file as `lab11-first-last.Rmd`, where `first` and `last` are your
+first and last names (e.g. `lab11-gaston-sanchez.Rmd`).
+- Knit your `Rmd` file as an html document (default option).
+- Submit your `Rmd` and `html` files to bCourses, in the corresponding lab assignment.
+
+```{r eval = FALSE}
+library(tidyverse)
+```
+
+
+-----
+
+
+## Basics of String Manipulation
+
+In this first part of the lab, you will be using the row names of the data 
+frame `USArrests` (this data comes already in R):
+
+```{r usarrests}
+head(USArrests)
+
+states <- rownames(USArrests)
+head(states)
+```
+
+Here are some functions that you may need to use in this lab:
+
+- `nchar()`
+- `tolower()`
+- `toupper()`
+- `casefold()`
+- `paste()`
+- `paste0()`
+- `substr()`
+
+
+## 1) Number of characters
+
+The function `nchar()` allows you to count the number of characters in a string.
+For example:
+
+```{r}
+nchar(c("Concepts", "in", "computing", "with", "data"))
+```
+
+
+### 1.1) Your Turn: `nchar()`
+
+Use `nchar()` on `states` to get the number of characters of each state:
+
+```{r}
+# your code
+nchar(states)
+```
+
+
+-----
+
+
+## 2) Case folding
+
+There are 3 functions to do case-folding: `tolower()`, `toupper()`, and `casefold()`. 
+
+
+### 2.1) Your Turn: case folding
+
+Apply each function on `states` to see what happens
+
+```{r}
+# your code
+tolower(states)
+toupper(states)
+casefold(states)
+```
+
+
+-----
+
+
+## 3) Length of State Names
+
+In 1.1) you used `nchar()` to count the number of characters in each 
+state name:
+
+```{r num-chars}
+# number of charcaters
+num_chars <- nchar(states)
+```
+
+### 3.1) Your Turn:  frequencies
+
+Use the vector `num_chars` to obtain a frequency table called `char_freqs`, 
+and then plot the frequencies with a bar chart. The function `table()` is your
+friend.
+
+```{r}
+# your code
+char_freqs <- table(num_chars)
+
+barplot(char_freqs, las=1, border = NA)
+```
+
+
+-----
+
+
+## 4) Pasting strings
+
+R provides the `paste()` function. This function allows you to __paste__ 
+(i.e. append, concatenate) character vectors separated by a blank space:
+
+```{r pumpkin}
+paste('Pumpkin', 'Pie')
+```
+
+You can give it any number of input vectors
+
+```{r abcde}
+paste('a', 'b', 'c', 'd', 'e')
+```
+
+You can change the separator with `sep`
+
+```{r abcde-sep}
+paste('a', 'b', 'c', 'd', 'e', sep = '-')
+```
+
+`paste()` is vectorized:
+
+```{r vectorized}
+paste('a', 1:5, sep = '.')
+```
+
+There's a special wrapper around `paste()` called `paste0()` which is 
+equivalent to `paste(..., sep = "")`
+
+```{r paste0}
+# paste0() -vs- paste(..., sep = "")
+paste0('Pumpkin', 'Pie')
+paste('Pumpkin', 'Pie', sep = '')
+
+# paste0() is also vectorized
+paste0('a', 1:5)
+```
+
+
+### 4.1) Your Turn: `paste()`
+
+Use `paste()` to form a new vector with the first five states 
+and their number of characters like this:
+
+`"Alabama = 7"  "Alaska = 6"  "Arizona = 7"  "Arkansas = 8"  "California = 10"`
+
+```{r}
+# your code
+paste(states[1:5], num_chars[1:5], sep= '=')
+```
+
+
+### 4.2) Your Turn: `paste()` with `collapse`
+
+Now use `paste()`'s argument `collapse = ''` to _collapse_ the first five 
+states like this:
+
+`"AlabamaAlaskaArizonaArkansasCalifornia"`
+
+```{r}
+# your code
+paste(states[1:5], collapse= '')
+```
+
+
+-----
+
+
+### 5) Substrings
+
+R provieds the function `substr()` to extract substrings in a character vector:
+
+```{r substr-berkeley}
+# extract first 3 characters
+substr('Berkeley', start = 1, stop = 3)
+```
+
+
+### 5.1) Your Turn: `substr()`
+
+a) Use `substr()` to shorten the state names using the first 3-letters:
+
+```{r}
+# your code
+substr(states, start = 1, stop=3)
+```
+
+b) Use `substr()` to shorten the state names using the last 3-letters:
+
+```{r}
+# your code
+substr(states, num_chars -2, num_chars)
+```
+
+c) How would you shorten the state names using the first letter and the last
+3-letters? For instance:  `"Aama"` `"Aska"` `"Aona"` `"Asas"` etc.
+
+```{r}
+# your code
+paste(substr(states, start = 1, stop=1), substr(states, num_chars -2, num_chars))
+```
+
+
+-----
+
+
+## 6) Challenge
+
+We already obtained a frequency table `char_freqs` with the counts of state 
+names by number of characters. You can use those frequencies to get those 
+state-names with 4-characters or 10-characters:
+
+```{r}
+# 4-char states
+states[num_chars == 4]
+```
+
+```{r}
+# 10-char states
+states[num_chars == 10]
+```
+
+You can use `paste()` to join the 4-character states in one single string 
+(i.e. _collapsing_) like this---separated by a comma and space---:
+
+```{r}
+# collapse 4-char states
+paste(states[num_chars == 4], collapse = ", ")
+```
+
+
+### 6.1) Your Turn: list `states_list`
+
+Write code (using a for-loop) to obtain a 
+list `states_list` containing the collapsed names by number of characters. 
+If the number of characters is an even number, then the state names should be 
+in capital letters. Otherwise, they should be in lower case letters.
+
+Each list element of `states_list` must be named with the number of characters, 
+followed by a dash, followed by the word `chars`: e.g. `'4-chars'`, `'5-chars'`,
+etc. In total, `states_list` should have the same length as `char_freqs`.
+
+Here's what `states_list` should look like for the first three elements:
+
+```
+$`4-chars`
+[1] "IOWA, OHIO, UTAH"
+
+$`5-chars`
+[1] "idaho, maine, texas"
+
+$`6-chars`
+[1] "ALASKA, HAWAII, KANSAS, NEVADA, OREGON"
+```
+
+```{r}
+# your code
+char_classes <- as.numeric(names(char_freqs))
+states_list <- vector("list", length(char_classes))
+
+for (i in 1:length(char_freqs)) {
+  collapsed <-paste(states[num_chars == char_classes[i]], collapse =", ")
+  if (char_classes[i] %% 2==0) {
+    states_list[[i]] <- toupper(collapsed)
+  } else {
+    states_list[[i]] <- tolower(collapsed)
+  }
+}
+
+names(states_list) <-paste(char_classes, "-chars")
+states_list
+```
+
+
+-----
+
+
+## 7) Names of files
+
+Imagine that you need to generate the names of 10 data `.csv` files.
+All the files have the same prefix name but each of them has a different number: 
+`file1.csv`, `file2.csv`, ... , `file10.csv`. 
+
+
+### 7.1) Your Turn
+
+How can you generate a character vector with these names in R? Use `paste()`,
+or `paste0()`, to create a character vector with the names of those files.
+
+a) Use `paste()` to create a character vector with the names of those files.
+
+```{r}
+# your code
+paste("file", 1:10, ".csv", sep = "")
+```
+
+
+b) Now use `paste0()` to create the same vector.
+
+```{r}
+# your code
+paste0("file", 1:10, ".csv", sep = "")
+```
+
+
+### 7.2) Your Turn
+
+Now imagine that you need to rename the characters `file` into `dataset`. In 
+other words, you want the vector of file names to look like this: 
+`dataset1.csv`, `dataset2.csv`, ... , `dataset10.csv`. 
+Find out how to use `gsub()`, so that it takes the previous vector of file 
+names it returns a vector of renamed elements:
+
+```{r}
+# your code
+file <- paste0("file", 1:10, ".csv", sep = "")
+dataset <- gsub(pattern="file", replacement="dataset", file)
+dataset
+```
+
+
+-----
+
+
+## 8) Converting from Fahrenheit Degrees
+
+Here are four functions that convert from Fahrenheit degrees to other 
+temperature scales:
+
+```{r}
+to_celsius <- function(x = 1) {
+  (x - 32) * (5/9)
+}
+
+to_kelvin <- function(x = 1) {
+  (x + 459.67) * (5/9)
+}
+
+to_reaumur <- function(x = 1) {
+  (x - 32) * (4/9)
+}
+
+to_rankine <- function(x = 1) {
+  x + 459.67
+}
+```
+
+We can use the previous functions to create a more general function 
+`temp_convert()`:
+
+```r
+temp_convert <- function(x = 1, to = "celsius") {
+  switch(to,
+         "celsius" = to_celsius(x),
+         "kelvin" = # fill in the blank,
+         "reaumur" = # fill in the blank,
+         "rankine" = # fill in the blank)
+}
+
+temp_convert(30, 'celsius')
+```
+
+`temp_convert()` works fine when the argument `to = 'celsius'`. But what happens 
+if you try `temp_convert(30, 'Celsius')` or `temp_convert(30, 'CELSIUS')`?
+
+
+### 8.1) Your Turn: `temp_convert()`
+
+Rewrite `temp_convert()` such that the argument `to` can be given 
+in upper or lower case letters. For instance, the following three calls should 
+be equivalent:
+
+- `temp_convert(30, 'celsius')`
+- `temp_convert(30, 'Celsius')`
+- `temp_convert(30, 'CELSIUS')`
+
+```{r}
+# your code
+temp_convert <- function(x = 1, to = "celsius") {
+  switch(to,
+         "celsius" = to_celsius(x),
+         "kelvin" = to_kelvin(x),
+         "reaumur" = to_reaumur(x),
+         "rankine" = to_rankine(x))
+}
+
+temp_convert(30, 'celsius')
+```

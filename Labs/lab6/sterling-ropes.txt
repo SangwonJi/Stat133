@@ -1,0 +1,9 @@
+nano,Sterling,9.2,53,6,8.4
+ion2,Sterling,9.4,57,5,8.1
+velocity,Sterling,9.8,62,6,8.8
+biapro,Sterling,10.1,63,6,8.6
+marapro,Sterling,10.1,63,6,8.6
+kosmos,Sterling,10.2,67,8,8.8
+biasport,Sterling,10.4,69,7,9.3
+maraultra,Sterling,10.7,70,8,8.6
+maramega,Sterling,11,79,9,8.7

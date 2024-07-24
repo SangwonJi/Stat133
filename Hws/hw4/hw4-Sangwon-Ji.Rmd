@@ -1,0 +1,289 @@
+---
+title: "hw4-Sangwon-Ji"
+output: html_document
+date: "2022-10-23"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+A = (11.33/(18.18))**(1/(1978-1964)) 
+B = (5.95/11.33)**(1/(2019-1978))
+C = (31.7/30.5)**(1/(1978-1964))
+D = (38.2/31.7)**(1/(2019-1978))
+E = (1.06/7.45)**(1/(1991-1964))
+F = (3.74/1.06)**(1/(2019-1991))
+G = (32.5/31)**(1/(1991-1964))
+H = (35.7/32.5)**(1/(2019-1991))
+
+
+GDP = (c(GDP_C_A, GDP_C_B, GDP_I_E, GDP_I_F))
+GINI = (c(Gini_C_C, Gini_C_D, Gini_I_G, Gini_I_H))
+ggplot(x = GDP, y = GINI)
+```
+
+```{r}
+df <- data.frame(
+  Period = c(A, B, E, F),
+  Growth_Rate = c(C, D, F, G)
+)
+
+ggplot(df, aes(x = Period, y = Growth_Rate)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Period", y = "Growth Rate", title = "Growth Rates of GDP and Gini Coefficient") +
+  facet_wrap(~Measure)
+
+
+ggplot(df, aes(x = Period, y = Growth_Rate, group = Measure, color = Measure)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Period", y = "Growth Rate", color = "Measure", title = "Growth Rates of GDP and Gini Coefficient")
+
+
+```
+
+
+## 1) Future Value
+
+Function future_value
+
+$FV = P(1 +{\frac{r}{k}}))^{nk}$
+
+-   FV= future value
+-   P= principal
+-   r= annual interest rate
+-   n= number of years
+-   k = number of compounding periods per year
+
+#### 1.1) Function future_value
+
+```{r}
+df1 <- data.frame(
+  Point = rep(c("Point1", "Point2"), 4),
+  Value = c(A, C, B, D, E, G, F, H),
+  Group = rep(c("Group1", "Group2", "Group3", "Group4"), each = 2)
+)
+
+ggplot(df1, aes(x = Point, y = Value, group = Group, color = Group)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Point", y = "Value", color = "Group", title = "Line Plot of Specified Points")
+
+
+```
+- By end of 2 years, I would have 1040.4 dollars. 
+
+#### 1.2) Use future_value() to answer the following question
+
+Paul deposits $1,000 in a Certificate of Deposit for 3 years at 2.5% per year compounded annually. What will be the value of the money at the end of 3 years?
+
+```{r}
+A = ((364393196721.71/142246166193.5)**(1/(1978-1964))-1) *100
+B = ((14296344415554/364393196721.71)**(1/(2019-1978))-1) *100
+C = ((31.7/30.5)**(1/(1978-1964))-1) * 100
+D = ((38.2/31.7)**(1/(2019-1978))-1) * 100
+E = ((470159552155.67/165819092695.86)**(1/(1991-1964))-1) * 100
+F = ((2685747840248.32/470159552155.67)**(1/(2019-1991))-1) * 100
+G = ((32.5/31)**(1/(1991-1964))-1) * 100
+H = ((35.7/32.5)**(1/(2019-1991)) -1) * 100
+
+df2 <- data.frame(
+  X = c(A, B, E, F),
+  Y = c(C, D, G, H),
+  Group = c("China", "China", "India", "India")
+)
+
+library(ggplot2)
+
+ggplot(df2, aes(x = X, y = Y, color = Group)) +
+  geom_point(size = 2) +
+  geom_line(aes(group = Group)) +
+  theme_minimal() +
+  labs(x = "Growth", y = "Inequality", color = "Group")
+
+df2 <- data.frame(
+  X = c(A, B, E, F),
+  Y = c(C, D, G, H),
+  Group = c("China", "China", "India", "India"),
+  Label = c("China(Y1-Y2)", "China(Y2-Y3)", "India(Y1-Y2)", "India(Y2-Y3)")
+)
+
+library(ggplot2)
+
+ggplot(df2, aes(x = X, y = Y, color = Group)) +
+  geom_point(size = 2) +
+  geom_line(aes(group = Group)) +
+  geom_text(aes(label = Label), vjust = -1.5) +
+  theme_minimal() +
+  labs(x = "Growth", y = "Inequality", color = "Group") +
+  expand_limits(x = c(min(df2$X) - 0.001, max(df2$X) + 0.001), 
+                y = c(min(df2$Y) - 0.001, max(df2$Y) + 0.001))
+
+
+```
+- Paul would have 1076.89 dollars at the end of three years. 
+
+## 2) Future Value of Ordinary Annuity
+
+Future Value of an ordinary Annuity formula:
+
+$FVordinary annuity \rightarrow FV = PMT {\times} {\frac{(1 + {\frac{r}{k}})^{nk} - 1}{^r/_k}}$
+
+if r = 0 then :
+
+$FV = PMT \times nk$
+
+-   FV= future value
+-   PMT= periodic contribution made at the end of each period
+-   r= annual interest rate
+-   n= number of years
+-   k= number of compounding periods per year
+
+#### 2.1) Function annuity()
+
+```{r}
+annuity = function(PMT= 1, r= 0.01, k= 1, n=1) {
+if (r >0) {
+  FV = PMT * (((1+ r/k) ^ (n*k) - 1) / (r/k))
+} else {
+   FV = PMT * (n *k)
+} 
+  return(FV)
+}
+```
+
+#### 2.2) Use your function annuity() to find how much money Mrs. Savingswood will have at the end of 10 years.
+
+```{r}
+annuity(PMT=100, r = 0.05, k=12, n=10)
+```
+- Mrs. Savingswood will have 15528.23 at the end of 10 years. 
+
+## 3) Combo: Future Value and ordinary Annuity
+
+The formula:
+
+$FV = P(1 +{\frac{r}{k}})^{nk} + PMT{\frac{(1 + {\frac{r}{k}})^{nk} - 1}{^r/_k}}$
+
+#### 3.1) Investment table for a 10-year period
+
+```{r}
+initial_amount = 1000
+num_years = 10
+annual_contributions = 720
+return_rates = 0.0755
+set.seed(12345)
+
+Amount = rep(initial_amount, length = num_years + 1)
+
+for (year in 0:num_years) {
+  Amount[year+1] = future_values(p=1000, r= 0.0755, k=1, year) + annuity(PMT =720, r = 0.0755, k=1, year)
+}
+
+years = c(0:10)
+
+balance.df <- data.frame(years, Amount)
+balance.df
+```
+
+## 4) Simulating Investing in a Total Stock Market index fund
+
+- We are going to assume that annual rates of return $r_y$ follow a **normal distribution** with a mean $\mu=10$% and a standard deviation $\sigma= 18$%
+
+$r_y∼N(\mu=10$%$,\sigma=18$%)
+
+#### 4.1) 50 simulations of a 10-year investment period
+
+```{r}
+initial_amount = 1000
+num_years = 10
+num_simulations =50
+annual_return = 0.1
+annual_volatility = 0.18
+set.seed(12345)
+
+balances = matrix(0, nrow= num_years+1, ncol = num_simulations)
+
+for (sim in 1:num_simulations) {
+  aux_balance = rep(initial_amount, num_years + 1)
+  return_rates = rnorm(num_years, mean =annual_return, sd =annual_volatility)
+  for (year in 1:num_years) {
+    aux_balance[year + 1] = aux_balance[year] * (1+return_rates[year]) + 360
+  }
+  balances[ ,sim] = aux_balance
+  }
+
+rownames(balances) = 0:num_years
+colnames(balances) =paste0("sim", 1:num_simulations)
+balances.df <- data.frame(balances)
+balances.df %>% select(1:3)
+```
+
+#### Converting, Building Data frame
+
+```{r}
+balances_df = as.data.frame(balances)
+
+balances_df$year = 0:(nrow(balances)-1)
+
+balances_df
+
+dat = pivot_longer(
+  balances_df, 
+  cols = starts_with("sim"),
+  names_to = "simulation",
+  values_to = "amount"
+)
+
+dat
+
+```
+
+#### 4.2) Data Visualization
+
+```{r}
+ggplot(data = dat, aes(x= year, y= amount, group=simulation, color =simulation)) +geom_line() +
+  labs(title = "50 simulations of a 10 year investment", x ="Years", y="Balance($)") +
+  scale_x_continuous(breaks = round(seq(min(dat$year), max(dat$year), by =1),1)) +
+  scale_y_continuous(breaks = round(seq(min(dat$amount), max(dat$amount), by=2000), 2000)) +
+  guides(color = guide_legend(title="simulations")) +
+  theme_minimal()
+```
+
+### What things would you add to the graph in order to improve the visualization of so many lines ?
+
+```{r}
+cols <- c("gray","gray","gray","gray","gray","gray","gray","gray","gray","gray", "gray","gray","gray","gray","gray","gray","gray","gray","gray","gray","gray","gray","gray","orange","gray","gray","gray","gray","gray","gray","gray","gray","gray","gray","gray","gray","gray","gray","gray","gray","gray","red","gray","gray","gray","gray","gray","gray","orange","steelblue","gray")
+
+average <- dat %>% filter(year== "10") %>% select(amount) %>% sum/50
+```
+
+```{r}
+ggplot(data = dat, aes(x= year, y= amount, group=simulation, color=simulation)) +geom_line() +
+  labs(title = "50 simulations of a 10 year investment", x ="Years", y="Balance($)", caption="average indicates the average of the 10th year", subtitle ="Simulation that varies vastly, the outliers and range that are within 4000 and 14000") +
+  scale_x_continuous(breaks = round(seq(min(dat$year), max(dat$year), by =1),1)) +
+  scale_y_continuous(breaks = round(seq(min(dat$amount), max(dat$amount), by=2000), 2000)) +
+  scale_color_manual(values=cols) +
+  geom_hline(aes(yintercept=average), linetype="dashed") +
+  theme_minimal() +
+  theme(plot.title = element_text(face="bold", hjust=0.01), plot.caption = element_text(face="bold"), axis.text = element_text(face="bold")) +
+  theme(legend.position = "none") +
+  theme(panel.grid.minor = element_blank()) +
+  annotate(geom="text", x= 9.5, y =20600, label="highest, sim9", size=2.4) +
+  annotate(geom="text", x= 9.5, y=2500, label="lowest, sim47", size=2.4) +
+  annotate(geom="text", x = 0, y = 9400, label="average", size= 2.4) + 
+  annotate(geom="text", x= 9.8, y= 4100, label="range, sim30", size=2.4) +
+  annotate(geom="text", x=9.9, y= 14000, label="range, sim8", size=2.4)
+```
+
+
+- For a brief explanation of the improvements that are done for the graph, I focused on the readability of crucial information. The outliers, that are the highest and the lowest and the approximate range that mostly the numbers are within were highlighted in blue, red and orange. The average line was used to contrast the numbers easily, average of the 10th year, and the grid and legends were gone since it was distracting the graph in whole. Instead, I added annotations to find out which number of simulation had the results that are highlighted. I think it enabled for the reader to see how the numbers are shown in a wide perspective in a whole. 

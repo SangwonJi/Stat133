@@ -1,0 +1,299 @@
+---
+title: "hw2-Sangwon-Ji"
+output: html_document
+date: "2022-09-20"
+---
+
+# **Homework 2**
+
+### **Sangwon Ji**
+
+## **A.1) Recommended R packages**
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+library(spData)
+library(maps)
+library(rnaturalearth)
+library(sp)
+library(ggplot2)
+```
+
+## **A.2) Importing Data in R**
+
+```{r}
+col_names <- c(
+  "SID",
+  "SEASON",
+  "NUMBER",
+  "BASIN",
+  "SUBBASIN",
+  "NAME",
+  "ISO_TIME",
+  "NATURE",
+  "LAT",
+  "LON",
+  "WMO_WIND",
+  "WMO_PRES",
+  "WHO_AGENCY",
+  "TRACK_TYPE",
+  "DIST2LAND",
+  "LANDFALL"
+)
+
+col_types <- c(
+  "character",
+  "integer",
+  "integer",
+  "character",
+  "character",
+  "character",
+  "character",
+  "character",
+  "double",
+  "real",
+  "integer",
+  "integer",
+  "character",
+  "character",
+  "integer",
+  "integer"
+)
+
+dat <- read.csv(
+  file = "Numbers.csv",
+  colClasses = c(col_types, rep("NULL",147)),
+  stringsAsFactors = FALSE,
+  skip = 77876,
+  na.strings = c("NA", "")
+)
+
+colnames(dat) <- col_names 
+```
+
+## **A.3) Adding a MONTH column**
+
+```{r}
+dat$ISO_TIME = as.POSIXct(dat$ISO_TIME)
+dat$MONTH <- lubridate::month(dat$ISO_TIME)
+```
+
+```{r}
+str(dat, vec.len = 1)
+```
+
+## **B) Univariate Exploratory Data Analysis**
+
+```{r}
+
+```
+
+## **C) Main Analysis**
+
+#### **C.1) Seasonal Statistics**
+
+```{r}
+#You will have to focus on the 2012 Atlantic hurricane season (i.e. year 2012) in order to address the subsections listed below.
+
+hurricanes_season = dat %>% filter(SEASON == 2012)
+```
+
+```{r}
+#a) total number of depressions (i.e. both named and unnamed)
+
+depressions= hurricanes_season %>% filter(NATURE == "TS") %>% distinct(NAME) %>% summarise(total_depression=n())
+depressions
+```
+
+```{r}
+#b) number of named storms
+named_storms = hurricanes_season %>% filter(WMO_WIND > 33.89, NAME !="NOT_NAMED") %>% distinct(NAME) %>% summarise(Named_Storms=n())
+
+named_storms
+```
+
+```{r}
+#c) number of hurricanes, and their names
+hurricanes_names= hurricanes_season %>% group_by(NAME) %>% filter(WMO_WIND > 64.3042) %>% distinct(NAME)
+
+hurricanes_names
+```
+With total of 10 rows, there were 10 hurricanes in 2012. 
+
+```{r}
+#d) number of major hurricanes, and their names
+
+major_hurricanes= hurricanes_season %>% group_by(NAME) %>% filter(WMO_WIND > 96.45) %>% distinct(NAME)
+
+major_hurricanes
+```
+For Major hurricanes, 2 major hurricanes took place in 2012.  
+
+```{r}
+#e) date of the first system formed, and its name
+arranged = hurricanes_season %>% 
+  group_by(ISO_TIME) %>%
+  arrange(order(ISO_TIME))
+
+arranged %>%
+  select(NAME, ISO_TIME) %>%
+  head(1)
+```
+
+```{r}
+#f) date of the last system dissipated, and its name
+arranged_desc = hurricanes_season %>%
+  group_by(ISO_TIME) %>%
+  arrange(desc(ISO_TIME))
+
+arranged_desc %>%
+  select(NAME, ISO_TIME) %>%
+  head(1)
+```
+
+#### **C.2) Statistics of Strongest Storm**
+
+```{r}
+#a) Name of strongest storm
+Strongest_storm = hurricanes_season %>% select(SID, NAME, WMO_WIND) %>% group_by(NAME) %>% summarise(Strongest= max(WMO_WIND, na.rm =TRUE)) %>% unique %>% arrange(desc(Strongest)) %>% select(NAME)
+
+head(Strongest_storm, 2)
+```
+
+##### **The Strongest storm are MICHAEL AND SANDY, as they both have the same wind speed.**
+
+```{r}
+#b) Its maximum wind speed
+Maximum_wind_speed = hurricanes_season %>% filter(NAME == "MICHAEL"  | NAME == "SANDY") %>% select(SID, NAME, WMO_WIND) %>% summarise(Maximum= max(WMO_WIND, na.rm=TRUE))
+Maximum_wind_speed
+```
+
+```{r}
+#c) Its lowest pressure
+lowest_pressure = hurricanes_season %>% filter(NAME == "MICHAEL"  | NAME == "SANDY") %>% select(SID, NAME, WMO_PRES) %>% summarise(Lowest= min(WMO_PRES, na.rm=TRUE))
+lowest_pressure
+```
+
+#### **C.3) Season Summary Map**
+
+```{r}
+#a) Compared to the “historical” average number of named storms, was the 2012 season an above-average, a below-average, or an average season?
+
+named_storms_in_2012 = hurricanes_season %>% filter(NAME !="NOT_NAMED") %>% select(SID,NAME) %>% unique() %>% summarise(Total=n())
+
+storm_year = dat %>% filter(NAME !="NOT_NAMED") %>% group_by(SID) %>% group_by(SEASON) %>% distinct(SID)
+
+#Finding the Average named storms by year 
+
+counts_total_by_year = storm_year %>% summarise(Total=n())
+
+sum_of_counts = counts_total_by_year %>% select(Total) %>% summarise(sum(Total))
+
+total_year_counts = dat %>% select(SEASON) %>% unique() %>% summarise(Total=n())
+
+average_of_year = sum_of_counts/total_year_counts
+
+#Unlising since ggplot doesn't take lists
+
+Average_of_year = unlist(average_of_year)
+Named_storms_in_2012 = unlist(named_storms_in_2012)
+
+#Visualizing 
+
+storms_barplot = ggplot(data = storm_year, aes(x=SEASON, fill= Named_storms_in_2012)) + geom_histogram(binwidth = 0.5) + geom_hline(aes(yintercept= Average_of_year)) + labs(x="Year", y="Total number of storms", caption= "Historical average of storms by year is 12.13462", title = "Total Number of Named Storms by Year")
+
+storms_barplot
+```
+
+Compared to the "historical" storms, If you see the barplot above, The line that's running cross the plots are the average, which is about 12.13462, is the average of all named storms that are recorded from 1970 to 2021. And as you can see, the year 2012's barplot is above the lane which it's stating that the average of 2012 is above-average
+
+```{r}
+#b) Compared to the “historical” average number of hurricanes, was the 2012 season an above-average, a below-average, or an average season?
+
+named_hurricanes_in_2012 = hurricanes_season %>% filter(WMO_WIND > 64.3042) %>% select(SID,NAME) %>% unique() %>% summarise(Total=n())
+
+hurricanes_year = dat %>% filter(WMO_WIND > 64.3042) %>% group_by(SID) %>% group_by(SEASON) %>% distinct(SID)
+
+#Finding the Average named hurricanes by year 
+
+counts_total_by_year_hurricanes = hurricanes_year %>% summarise(Total=n())
+
+sum_of_counts_hurricanes = counts_total_by_year_hurricanes %>% select(Total) %>% summarise(sum(Total))
+
+total_year_counts_hurricanes = dat %>% select(SEASON) %>% unique() %>% summarise(Total=n())
+
+average_of_year_hurricanes = sum_of_counts_hurricanes/total_year_counts_hurricanes
+
+#Unlising since ggplot doesn't take lists
+
+Average_of_year_hurricanes = unlist(average_of_year_hurricanes)
+
+Hurricanes_in_2012 = unlist(named_hurricanes_in_2012)
+
+#Visualizing 
+hurricanes_barplot = ggplot(data = hurricanes_year, aes(x=SEASON, fill= Hurricanes_in_2012)) + geom_histogram(binwidth = 0.5) + geom_hline(aes(yintercept= Average_of_year_hurricanes)) + labs(x="Year", y="Total number of huricanes", caption= "Historical average of hurricanes by year is 6.37", title = "Total Number of Hurricanes by Year")
+
+hurricanes_barplot
+```
+
+Similarily, just like the previous barplot we've looked on, the line crossing is the average of whole hurricanes by year, which is 6.37 and the hurricanes that occured in 2012 is 10, and just by looking at the graph, we can know that the hurricanes in 2012 are above average compared to the average of the historical data.
+
+```{r}
+#c) Compared to the “historical” average of maximum winds, was the 2012 season an above-average, a below-average, or an average season?
+winds_in_2012 = hurricanes_season %>% select(SID, NAME, WMO_WIND) %>% filter(WMO_WIND != "-Inf")%>% summarise(maximum= max(WMO_WIND, na.rm=TRUE))
+
+#Excluding year 21 since it has no value with wind speed
+
+season_without_21 = dat %>% filter(SEASON != "2021") %>% distinct(SEASON)
+
+max_winds_year = dat %>% group_by(SEASON) %>% filter(WMO_WIND != "-Inf") %>% summarise(maximum = max(WMO_WIND, na.rm = TRUE))
+
+#Finding the Maximum wind speed average by year 
+
+counts_total_wind = max_winds_year %>% select(maximum) %>% summarise(sum(maximum))
+
+sum_of_counts_total_wind= max_winds_year %>% select(maximum) %>% summarise(Total=n())
+
+average_wind = counts_total_wind / sum_of_counts_total_wind
+
+#Unlisting since ggplot doesn't take lists
+
+Average_wind = unlist(average_wind)
+
+Winds_in_2012 = unlist(winds_in_2012)
+
+Season_without_21 = unlist(season_without_21)
+
+#Visualizing 
+
+Winds_barplot = ggplot(data = max_winds_year, mapping = aes(x=Season_without_21, y=maximum, fill= Winds_in_2012)) + geom_col() + geom_hline(aes(yintercept= Average_wind)) + labs(x="Year", y="Maximum Wind Speed", caption= "Historical average of maximum windspeeds by year is 125.9804", title = "Maximum wind speeds by Year")
+                       
+Winds_barplot
+```
+
+Line crossing the plots is the average, which is 125.9804. This time, regarding the maximum wind speed by year, comparing to the historical average of the maximum wind speed seems to be below the average, which the maximum is listed as 100 but the average is 125.9804. Adding on, for this particular question, had to exclude year 2021 as it didn't have the information about the wind speed. Therefore, I had to exclude both the year 2021 and the windspeed -inf to regulate the confusion it might bring about. 
+
+#### **C.4) Season Summary Map**
+
+```{r}
+#a) Obtain a graph to map the location (and trajectories) of the storms. The background of your map does not have to be identical to the above image. The important thing is to have a map where the viewer can distinguish the Atlantic ocean, the continents, and of course the individual storms.
+world= map_data("world")
+map_with_lines = ggplot() +
+  geom_polygon(data = world, aes(x=long, y=lat, group=group), fill = "gray90", colour= "gray 50", size=0.2) +theme_bw()
+
+map_with_lines + 
+  geom_point(data=hurricanes_season,
+             aes(x=LON, y=LAT, color=NAME),
+             size = 0.4) + xlim(c(-146,0)) + ylim(c(0,78)) + labs(x= "longitude", y="Latitude", color = "Storm", title = "Map of storms in 2012")
+```
+
+```{r}
+#b) Did any hurricanes hit the United States? If yes, how many, and which ones?
+hurricanes = hurricanes_season %>% filter(WMO_WIND > 64.3042)
+
+map_with_lines + geom_point(data = hurricanes, aes(x= LON, y = LAT, color= NAME), size = 2) + xlim(c(-146,0)) + ylim(c(0,78)) + labs(x= "longitude", y="Latitude", color = "Storm", title = "Map with Hurricanes in 2012")
+```
+
+Yes. Hurricanes in 2012 did hit United States. Using the plot above, we can easily find out that two storms that are contacting the territory of the United States directly are the two hurricanes, named SANDY and ISAAC.

@@ -1,0 +1,467 @@
+---
+title: "Lab 12: Regular Expression (part 1)"
+subtitle: "Stat 133, Fall 2022"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(tidyverse)
+library(rvest)
+```
+
+
+> ### Learning Objectives
+>
+> - Work with the package `"stringr"`
+> - String manipulation
+> - Intro to regular expressions
+
+
+### General Instructions
+
+- Write your descriptions, explanations, and code in an `Rmd` (R markdown) file.
+- Name this file as `lab12-first-last.Rmd`, where `first` and `last` are your
+first and last names (e.g. `lab12-gaston-sanchez.Rmd`).
+- Knit your `Rmd` file as an html document (default option).
+- Submit your `Rmd` and `html` files to bCourses, in the corresponding lab assignment.
+
+```
+# required packages
+library(tidyverse)
+library(rvest)  # you may need to install this package
+```
+
+
+## Introduction to Regular Expressions (Regex)
+
+**Regular expression** also known as **Regex** is a tool for describing 
+patterns in strings. While R provides a set of built-in functions for regex
+pattern matching, I recommend that you use functions from `"stringr"` (part of
+the _tidyverse_), which in turn is based on `"stringi"`. 
+
+
+### Main `"stringr"` functions for regex
+
+The goal of this lab is for you to get a first contact with the most common 
+regex functions in `"stringr"` (see below), and to play a little bit with 
+matching basic regex patterns (e.g. literal characters, escaping metacharacters,
+using character sets, character classes, anchors, and quantifiers).
+
+- `str_match()`
+- `str_detect()`
+- `str_extract()`
+- `str_locate()`
+- `str_sub()`
+- `str_split()`
+- `str_remove()`
+- `str_replace()`
+
+
+### Some common regex patterns
+
+Here's a table with some of the common regex patterns:
+
+__Lieteral Characters, Wildcard, and Anchors__
+
+| Pattern  | Description     |
+|:---------|:----------------|
+| `abc`    | letters         |
+| `123`    | digits          |
+| `.`      | any character    |
+| `\\.`    | literal dot     |
+| `^a`     | starts with _a_ |
+| `b$`     | ends with _b_   |
+
+
+__Character Sets and Ranges__
+
+| Pattern  | Description   |
+|:---------|:----------------|
+| `[abd]`  | only a, b, or c |
+| `[^abc]` | not a, b, nor c |
+| `[a-z]`  | characters a to z |
+| `[A-Z]`  | characters A to Z |
+| `[0-9]`  | numbers 0 to 9 |
+
+
+__POSIX Classes__
+
+| Pattern        | Description   |
+|:---------|:----------------|
+| `[[:digit:]]`  | any digit     |
+| `[[:alpha:]]`  | any letter    |
+| `[[:alnum:]]`  | any alpha-numeric |
+| `[[:upper:]]`  | any lower case |
+| `[[:lower:]]`  | any upper case |
+| `[[:punct:]]`  | any punctuation |
+| `[[:space:]]`  | any space     |
+| `[[:xdigit:]]` | any hexadecimal digit |
+
+
+__Abbreviated Character classes__
+
+| Pattern  | Description   |
+|:---------|:----------------|
+| `\\d`    | any digit     |
+| `\\D`    | any Non-digit |
+| `\\w`    | any alphanumeric character |
+| `\\W`    | any non-alphanumeric character |
+| `\\s`    | any whitespace |
+| `\\S`    | any Non-whitespace |
+
+
+__Repetition and Quantifiers__
+
+| Pattern | Description   |
+|:---------|:----------------|
+| `a{m}`   | _m_ repetitions of `"a"` |
+| `a{m,n}` | _m_ to _n_ repetitions of `"a"` |
+| `a*`     | zero or more repetitions of `"a"` |
+| `a+`     | one or more repetitions of `"a"` |
+| `a?`     | optional character `"a"` |
+
+
+-----
+
+
+## 1) Data 
+
+You will be working with the data set for the 
+_Women's discus throw world record progression_, available in wikipedia:
+
+<https://en.wikipedia.org/wiki/Women%27s_discus_throw_world_record_progression>
+
+
+The following code downloads the html file of the wikipedia page to your 
+working directory: 
+
+```r
+# --------------------------------------------------------------
+# Run this code in the console (do NOT include in your Rmd file)
+# --------------------------------------------------------------
+
+# Download a copy of the HTML file
+wiki = "https://en.wikipedia.org/wiki/"
+women_discus = "Women%27s_discus_throw_world_record_progression"
+wiki_men_discus = paste0(wiki, women_discus)
+download.file(wiki_men_discus, "women-discus-throw.html")
+```
+
+<br>
+
+Assuming that the downloaded file `women-discus-throw.html` is in the same
+directory of your Rmd file, run the following commands to extract (i.e. scrape)
+the contents of the desired HTML table into an R data.frame
+
+```{r}
+# 1) import HTML file (into an 'xml document')
+html_doc = read_html('women-discus-throw.html')
+
+# 2) parse html table(s) into data frame(s)
+tbs = html_table(html_doc, header = TRUE)
+
+# 3) World records are in 2nd table
+dat = tbs[[2]]
+```
+
+What's going on in the above code chunk?
+
+1) `read_html()` imports the downloaded HTML file into an object of class
+`"xml_document"`
+
+2) to parse (extract) the HTML tables contained in the HTML document, we use
+`html_table()`. If the HTML document contains various HTML tables, they are
+returned as data.frames inside a `list` object. In this case, `tbs` is a list
+containing 4 data frames (because the HTML doc has 4 HTML tables).
+
+3) The HTML table of world records is the 2nd table, this corresponds
+to the data frame in the 2nd element of `tbs`.
+
+
+### Data Cleaning
+
+The main goal is to clean the downloaded data frame in order to produce a tidy 
+data frame via string manipulations with regex. More specifically, the _clean_
+data frame will have the following columns:
+
+- `mark` (in meters)
+- `first_name` (first name of athlete)
+- `last_name` (last name of athlete)
+- `initials` (name initials)
+- `country` (name of country abbreviation)
+- `day` (number of day)
+- `month` (name of month)
+- `year` (number of year)
+
+
+-----
+
+
+## 2) Extracting Mark (in meters)
+
+The column `Mark` contains a character string with the record expressed 
+both in meters and feet-inches. We want to extract only the value expressed
+in meters.
+
+My suggestion is to always start small. In this case, you can get a subset of
+values on which to test your regex patterns:
+
+```{r}
+tmp <- head(dat$Mark)
+tmp
+```
+
+With the values in `tmp`, you can match the numeric values of meters with a 
+pattern that matches a string __beginning__ with two digits, followed by a dot 
+`"."`, followed by two more digits
+
+```{r}
+str_extract(tmp, "^[0-9][0-9]\\.[0-9][0-9]")
+```
+
+
+### 2.1) Your Turn: Meters
+
+a) Use `str_extract()` with a pattern that matches a string __beginning__ with two 
+digits, followed by a dot `"."`, followed by two more digits. Come up with 
+three different regex patterns that meet these criteria.
+
+```{r}
+# your code for pattern 1
+
+```
+
+```{r}
+# your code for pattern 2
+
+```
+
+```{r}
+# your code for pattern 3
+
+```
+
+
+b) Once you have a simple pattern, use it on the entire column `Mark` and get a
+__numeric vector__ `mark`:
+
+```{r}
+# numeric vector mark
+
+```
+
+
+-----
+
+
+## 3) Extracting Athlete Name
+
+The second task involves extracting the first and last names of the athletes. 
+If you inspect the column `Athlete`, you will see that all its values are 
+formed with the first name, the last name, and the country inside parenthesis:
+
+```{r}
+ath <- head(dat$Athlete)
+ath
+```
+
+
+### 3.1) Your Turn: play with `ath`
+
+a) Work with the sample vector `ath` and try to `str_extract()` the first name.
+You can experiment with the _word_ pattern `"\\w+"` (i.e. one or more 
+alphanumeric characters):
+
+```{r}
+# your code (for first name)
+
+```
+
+
+b) Now use the patterns _whitespace_ `"\\s"` and _word_ `"\\w+"` to attempt 
+extracting the athlete's last name; to remove the extra matched space you can
+use `str_trim()`
+
+```{r}
+# your code for the last name
+
+```
+
+
+c) Once you are done working with `ath`, use your code to extract the first and 
+last names of all athletes; use vectors `first_name` and `last_name` for this
+purpose:
+
+```{r}
+# first and alst name of all athletes
+
+```
+
+
+### 3.2) Your Turn: Athlete's Initials
+
+Use `first_name` and `last_name` to select the first letter in each vector
+in order to form a new vector `initials` containing the initials of each 
+athlete's name: e.g. `"J.T."`, `"T.L."`, `"G.H."`, etc.
+
+```{r}
+# initials vector
+
+```
+
+
+-----
+
+
+## 4) Country
+
+The column __Athlete__ also contains the athlete's country---abbreviated---within parenthesis:
+
+```{r}
+ath <- head(dat$Athlete)
+ath
+```
+
+
+### 4.1) Your Turn: Athlete's country
+
+a) Use `str_extract()` with a regex pattern that matches the country
+abbreviation. Come up with three different regex patterns that let you get
+these characters:
+
+```{r}
+# your code (pattern 1)
+
+```
+
+```{r}
+# your code (pattern 2)
+
+```
+
+```{r}
+# your code (pattern 3)
+
+```
+
+
+b) Once you have the right pattern, use your code to extract the country
+abbreviations on the entire column to produce a vector `country`
+
+```{r}
+# your country vector
+
+```
+
+
+-----
+
+
+## 5) Date
+
+The date values are in the column `Date`:
+
+```{r}
+dts <- head(dat$Date)
+dts
+```
+
+
+### 5.1) Your Turn: play with `dts`
+
+With the `dts` vector, extract in separate vectors the 
+values of day, month name, and year: you can try using patterns such as 
+`"[0-9]"`, `"\\d+"`, `"\\w+"`:
+
+```{r}
+# your code for days
+
+```
+
+```{r}
+# your code for months
+
+```
+
+```{r}
+# your code for years
+
+```
+
+
+-----
+
+
+## 6) Clean Data Frame
+
+We are assuming that you have created vectors for all the cleaned components: 
+
+- `mark` (in meters)
+- `first_name` (first name of athlete)
+- `last_name` (last name of athlete)
+- `initials` (name initials)
+- `day` (number of day)
+- `month` (name of month)
+- `year` (number of year)
+
+
+### 6.1) Your Turn: assemble `discus`
+
+Create a data frame `discus` with all the above vectors used as column of this
+table. Display the `head()` and `tail()` of this table.
+
+```{r}
+# your code
+
+```
+
+
+-----
+
+
+## 7) Your Turn: Timeline graph
+
+Graph a timeline to visualize the progression of world records: use `year` 
+for the x-axis, and `mark` for the y-axis
+
+```{r}
+# your code
+
+```
+
+
+-----
+
+
+## 8) Your Turn: Challenge
+
+Write code (using a for-loop) to obtain a list `names_month` containing the 
+athlete names, in alphabetical order, that set a world record in each month. 
+
+For illustration purposes, here's what `names_month` should look like for the 
+first three elements. Notice that the last name appears first, followed by a 
+comma, and then the first name. Likewise, the names appear in alphabetical
+order by last name.
+
+```
+$April
+[1] "Melnik, Faina"
+
+$May
+[1] "Dumbadze, Nina"       "Jahl, Evelin"         "Konopacka, Halina"   
+[4] "Melnik, Faina"        "Press, Tamara"        "Savinkova, Galina"   
+[7] "Spielberg, Christine" "Wajs, Jadwiga"       
+
+$June
+[1] "Mauermayer, Gisela" "Melnik, Faina"      "Wajs, Jadwiga"     
+[4] "Westermann, Liesel"
+```
+
+```{r}
+# your code
+
+```
+

@@ -1,0 +1,512 @@
+---
+title: "Lab 4: More Data Tables"
+subtitle: "Stat 133, Fall 2022"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+> ### Learning Objectives
+>
+> - How to import data tables in R
+> - Get to know base reading tables functions
+> - Pipes with `"dplyr"`
+
+
+### General Instructions
+
+- Write your descriptions, explanations, and code in an `Rmd` (R markdown) file.
+- Name this file as `lab04-first-last.Rmd`, where `first` and `last` are your
+first and last names (e.g. `lab04-gaston-sanchez.Rmd`).
+- Knit your `Rmd` file as an html document (default option).
+- Submit your `Rmd` and `html` files to bCourses, in the corresponding lab assignment.
+
+
+-----
+
+
+## 1) Importing Data Tables
+
+Data sets come in many different presentations. One common format is that of a 
+data table---like a spreadsheet---although you can find data in other formats 
+(especially when the data is in its raw version). However, once you get to the 
+analysis stage, you will likely be dealing with some sort of tabular format.
+
+Because data tables are so ubiquitous, it is fundamental that you learn how to
+import them in R. In the first part of today's lab, we are going to review 
+various aspects that have to do with reading in tables in R.
+
+We will talk about the following functions (and packages)
+
+- `read.table()`
+- `read.csv()`
+- `read.delim()`
+- `read.fwf()`
+- Optional: R package `"readr"`
+
+
+
+## 2) Flags Data Set
+
+The first data set to consider is the __Flags Data Set__ that is part of the
+UCI Machine Learning Repository:
+
+<http://archive.ics.uci.edu/ml/datasets/Flags>
+
+
+The location of the data file `flag.data` is:
+
+<https://archive.ics.uci.edu/ml/machine-learning-databases/flags/flag.data>
+
+
+The location of the data dictionary file `flag.names` (i.e. description of the 
+data) is:
+
+<https://archive.ics.uci.edu/ml/machine-learning-databases/flags/flag.names>
+
+
+### 2.1) Your Turn
+
+Use a text editor (e.g. the one in Rstudio) to look at both the `flag.data` 
+file, and the code book `flag.names`, and answer the following questions 
+(using your own words):
+
+a) What's the character delimiter used in `flag.data`?
+
+Character delimiter that is used in flag.data are commas (,)
+
+
+b) Is there a row for column names in `flag.data`?
+
+There is no row to indicate column in flag.data.
+
+
+c) According to the information of `flag.names` are there any missing values? 
+If yes, how are they encoded?
+
+According to flag.names, it is indicated that there are no missing values. It is encoded that missing values are none. 
+
+
+
+### 2.2) Getting a Local Copy of the Data
+
+There are multiple ways to import the tabular data in `flag.data` into R.
+One quick-and-dirty way to read this file in R, is by passing the URL location 
+of the file directly to any of the `read.table()` functions:
+
+```r
+url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/flags/flag.data"
+flags <- read.table(url, sep = ",")
+```
+
+My suggestion when reading datasets from the Web, is to always try to get a 
+local copy of the data file in your machine (as long as you have enough free 
+space to save it in your computer). To do this, you can use the function 
+`download.file()`, specifying the url address, and the name of the file that 
+will be created in your computer. For instance, to save the flags data file 
+in __your working directory__, type the following commands on the console:
+
+```r
+# (Do NOT include this code in your Rmd file!!!)
+# download copy
+origin <- 'https://archive.ics.uci.edu/ml/machine-learning-databases/flags/flag.data'
+destination <- 'flag.data'
+download.file(origin, destination)
+```
+
+Now that you have a local copy of the dataset, you can import it with 
+`read.table()` like so:
+
+```r
+# reading data from your working directory
+flags <- read.table("flag.data", sep = ",")
+```
+
+Once you read a data table, you may want to start looking at its contents,
+usually taking a peek at a few rows. This can be done with `head()` and/or 
+with `tail()`:
+
+```r
+# take a peek of first rows
+head(flags)
+
+# take a peek of last rows
+tail(flags)
+```
+
+Likewise, you may also want to examine how R has decided to take care of the
+storage details (what data type is used for each column?). Use the function
+`str()` to check the structure of the data frame:
+
+```r
+# check data frame's structure
+str(flags, vec.len = 1)
+```
+
+Two things to notice are:
+
+- the way R gives names to the columns (e.g. `"V1"`, `"V2"`, etc)
+
+- the data-type R uses for each column (e.g. `"character"`,
+`"integer"`, etc)
+
+In general, the reading table functions have several mechanisms to make an 
+educated guess for how it should handle various details such as column names, 
+data types, missing values, etc. However, you can always play with the arguments
+of `read.table()` and friends to have more control over the data importing 
+behavior of R.
+
+
+
+### 2.3) Your Turn: Column Names
+
+So far we have been able to read the data file in R. But we are missing a few 
+things such as the names for the columns.
+
+a) Use the combine function `c()` to create a character vector `column_names` 
+with the names of each column. Use the variable names displayed in section 
+"7. Attribute Information" of the `flag.names` file:
+
+    + `name`
+    + `landmass`
+    + `zone`
+    + `area`
+    + `population`
+    + _etc_
+
+BTW: Here's a simple example using `c()` to create a character vector: 
+`x = c('one', 'two', 'three')`
+
+```{r}
+# your code
+
+```
+
+
+b) Use your vector `column_names` and pass this to the argument `col.names` in
+the following call to `read.table()`. Also, change the evaluation option of the 
+code chunk to `eval = TRUE`, so that when you knit the file, R runs the command.
+
+```{r eval = FALSE}
+# import with read.table()
+flags <- read.table(
+  file = # fill in, 
+  sep = # fill in, 
+  col.names = # fill in)
+```
+
+
+c) Once the data is imported, inspect the columns names of `flags` with either
+the function `names()` or the function `colnames()`
+
+```{r}
+# your code
+
+```
+
+
+
+### 2.4) Your Turn: Importing a few rows
+
+a) Look at the documentation of the function `read.table()` and find how to 
+use its argument `nrows` in order to read just the first 5 lines in `flag.data`. 
+Name this data as `flag_1_5`, and display its content.
+
+```{r}
+# your code
+
+```
+
+
+b) Look at the documentation of the function `read.table()` and find how to 
+use its arguments `skip` and `nrows` in order to skip the first 5 lines in 
+`flag.data`, and then read the next 5 lines (lines 6-10). Name this data as 
+`flag_6_10`, and display its content.
+
+```{r}
+# your code
+
+```
+
+
+
+### 2.5) Your Turn: Importing a few columns
+
+a) Look at the documentation of the function `read.table()` and find how to 
+use its `colClasses` argument in order to import just the first four columns of 
+`flag.data`. Name this data as `flag4`, and check its structure with `str()`.
+_Hint_: the repetition function `rep()` can be your friend.
+
+```{r}
+# your code
+
+```
+
+
+b) How would you import the first, the third, and the fifth columns of 
+`flag.data`. Name this data as `flag135`, and check its structure with `str()`.
+_Hint_: the repetition function `rep()` can be your friend.
+
+```{r}
+# your code
+
+```
+
+
+-----
+
+
+## 3) Columns of Categorical Variables
+
+As you can tell from the contents of `flag.data`, most of the data values are 
+numbers. Moreover, if you read the descriptions in `flag.names`, most of the
+variables are categorical (i.e. qualitative) but have been numerically encoded.
+For example, the second column `landmass` is numerically encoded with six 
+categories:
+
+- `1 = N.America`
+- `2 = S.America` 
+- `3 = Europe`
+- `4 = Africa` 
+- `5 = Asia`  (there is actually a typo in `flag.names`)
+- `6 = Oceania`
+
+Often, we may be interested in having categorical variables with their actual 
+text descriptions instead of their numerical codes.
+
+Here's an example for how to import a subset `flag.data` with just the first
+four columns, and then re-encode the values of `landmass` to change them from 
+their numeric values to text categories.
+
+The next code chunk imports the first four columns:
+
+```{r}
+flags4 = read.table(
+  file = "flag.data", 
+  sep = ",",
+  col.names = c("name", "landmass", "area", "population", rep("", 26)),
+  colClasses = c(
+    "character", # name
+    "integer",   # landmass
+    "integer",   # area
+    "integer",   # population
+    rep("NULL", 26))  # exclude rest of columns
+)
+```
+
+Now the interesting step. We create an auxiliary vector `landmass_keys` that
+contains the actual numeric values, and also the text descriptions which are
+used as names. You can basically think of this vector as a set of __key-value__
+pairs in which a given _key_ refers to the category, e.g. `N.America`, and the 
+associated _value_ corresponds to the number in the data file, e.g. `1`
+
+```{r}
+# auxiliary numeric vector with 
+landmass_keys = c(
+  "N.America" = 1,
+  "S.America" = 2,
+  "Europe" = 3,
+  "Africa" = 4,
+  "Asia" = 5,
+  "Oceania" = 6)
+
+landmass_keys
+```
+
+Now that we have `landmass_keys`, we can use it to find the text-category
+of any set of numbers between 1 and 6. Here's a toy example for how to do this.
+
+```{r}
+# small test
+landmass_keys[c(2, 1, 5, 6, 4, 3)]
+```
+
+We haven't discussed R vectors yet. But we are essentially working with 
+a vector `landmass_keys` and another vector `c(2, 1, 5, 6, 4, 3)`. The 
+output of the preceding command returns another named numeric vector. What
+do we want from this output? What we really want is the names of the vector:
+
+```{r}
+# we are interested in the names
+names(landmass_keys[c(2, 1, 5, 6, 4, 3)])
+```
+
+Instead of using the test-vector `c(2, 1, 5, 6, 4, 3)`, we have to use the
+`landmass` values. One way to extract or inspect these values is with the 
+dollar sign `$`
+
+```{r}
+head(flags4$landmass)
+```
+
+Putting everything together, we use `landmass_keys` to produce a vector
+with the land numbers and their actual text categories. Because we care only 
+about the text, we extract them with the `names()` function as follows:
+
+```{r}
+landmass_categories = names(landmass_keys[flags4$landmass])
+head(landmass_categories)
+```
+
+The final step involves replacing the data of column `landmass` with this
+command:
+
+```{r}
+# replace data in column landmass
+# (now landmass have character values, not numeric)
+flags4$landmass = landmass_categories
+head(flags4)
+```
+
+
+
+### 3.1) Your Turn: Language Categories 
+
+Import only the first six columns (i.e. `name`, `landmass`, ..., `language`). 
+Repeat the process explained in the previous section 3 in order to replace the
+numeric values of `language` with their text categories. Display the `table()` 
+of counts for column `language`.
+
+```{r}
+# your code
+
+```
+
+
+-----
+
+
+## 4) More `"dplyr"`
+
+This part of the lab involves working with the __pipe operator__, denoted as `%>%`
+and also as `|>`, which allows you write function calls in a more human-readable 
+way. This operator is heavily used among the ecosystem of `"tidyverse"` 
+packages, and it's becoming less uncommon in traditional R code.
+
+The behavior of `"dplyr"` is functional in the sense that function calls don't 
+have side-effects. This implies that you must always save their results in order 
+to keep them in an object (in memory). 
+
+The "ugly" side of this functional behavior is that it doesn't lead to 
+particularly elegant code, especially if you want to do many operations at once.
+For example, refer to the table `flags4`. Say you want to calculate the averages
+of `area`, and `population`, grouping by `landmass`, and arranging by area. You
+either have to do it step-by-step:
+
+```{r}
+# manipulation step-by-step
+dat1 <- group_by(flags4, landmass)
+dat2 <- select(dat1, landmass, area, population)
+dat3 <- summarise(dat2,
+  avg_area = mean(area, na.rm = TRUE),
+  avg_pop = mean(population, na.rm = TRUE))
+dat4 <- arrange(dat3, avg_area)
+dat4
+```
+
+Or if you don't want to name the intermediate results, you need to wrap the 
+function calls inside each other:
+
+```{r}
+# inside-out style (hard to read)
+arrange(
+  summarise(
+    select(
+      group_by(flags4, landmass),
+      landmass, area, population
+    ),
+    avg_area = mean(area, na.rm = TRUE),
+    avg_pop = mean(population, na.rm = TRUE)
+  ),
+  avg_area
+)
+```
+
+This is difficult to read because the order of the operations is from inside 
+to out. Thus, the arguments are a long way away from the function. 
+To get around this problem, `"dplyr"` provides the `%>%` operator from 
+`"magrittr"`.
+
+`x %>% f(y)` turns into `f(x, y)` so you can use it to rewrite multiple 
+operations that you can read left-to-right, top-to-bottom:
+
+```{r}
+# using %>%
+flags4 %>% 
+  group_by(landmass) %>%
+  select(landmass, area, population) %>%
+  summarise(
+    avg_area = mean(area, na.rm = TRUE),
+    avg_pop = mean(population, na.rm = TRUE)) %>%
+  arrange(avg_area)
+```
+
+
+### 3.1) Your Turn: 
+
+Use `"dplyr"` functions and the _magrittr_ (aka _pipe_) operator `"%>%"` to 
+perform the following operations on the table `flags` (the one with ALL the
+columns):
+
+a) slice the table `flags` to get the first 3 rows, selecting columns `name`,
+`landmass`, and `population`
+
+```{r}
+# your code
+
+```
+
+
+b) slice the table `flags` to get the first 5 rows, selecting columns 
+`name`, `landmass`, `area`, `population`, arranging rows by `population`
+
+```{r}
+# your code
+
+```
+
+
+c) create a data frame `flags_circles` by filtering the data with flags 
+containing one or more circles, and selecting columns `name`, `religion`, 
+`circles`. Display its structure with `str()`
+
+```{r}
+# your code
+
+```
+
+
+d) create a data frame `flags_crosses` by filtering the data with those 
+flags containing one or more crosses, selecting columns `name`, `colours`,
+`religion`, (in that order).
+
+```{r}
+# your code
+
+```
+
+
+e) Filter those flags that have sunstars, and obtain the count (i.e. the
+frequency) of `mainhue` (e.g. number of flags with red main hue, number of
+flags with green main hue, etc), arranging values by this count in descending
+order.
+
+```{r}
+# your code
+
+```
+
+
+f) Compute the median `area`, and median `population` of those countries
+with languages _Spanish_ or _French_, grouped by `landmass`.
+
+```{r}
+# your code
+
+```
+

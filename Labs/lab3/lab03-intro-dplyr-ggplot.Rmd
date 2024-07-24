@@ -1,0 +1,621 @@
+---
+title: "Lab 3: First contact with dplyr and ggplot2"
+subtitle: "Stat 133, Spring 2022"
+output: html_document
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+> ### Learning Objectives:
+>
+> - Get started with `"dplyr"` and its basic verbs:
+>   + `slice()`, `filter()`, `select()`
+>   + `mutate()`
+>   + `arrange()`
+>   + `summarise()`
+>   + `group_by()`
+> - Get started with `"ggplot2"`
+> - Produce basic plots with `ggplot()`
+
+
+### General Instructions
+
+- Write your descriptions, explanations, and code in an `Rmd` (R markdown) file.
+- Name this file as `lab03-first-last.Rmd`, where `first` and `last` are your
+first and last names (e.g. `lab03-gaston-sanchez.Rmd`).
+- Knit your `Rmd` file as an html document (default option).
+- Submit your `Rmd` and `html` files to bCourses, in the corresponding lab assignment.
+
+
+-----
+
+
+## 1) Manipulating and Visualizing Data Frames
+
+In this lab, you will start learning a couple of approaches to manipulate tables
+and create statistical graphics. We are going to use the functionality of the 
+_tidyverse_ package `"dplyr"` to work with tabular data (_in a syntactic way_). 
+
+Likewise, to create graphics in a fairly consistent and visually pleasing way, 
+we are going to use `"ggplot2"` which is another _tidyverse_ package.
+
+While you follow this lab, you may want to open these cheat sheets:
+
+- [dplyr cheatsheet](https://github.com/rstudio/cheatsheets/raw/master/data-transformation.pdf)
+
+- [ggplot2 cheatsheet]https://github.com/rstudio/cheatsheets/raw/master/data-visualization-2.1.pdf)
+
+
+
+
+### 1.1) Installing packages
+
+I'm assuming that you already installed the package `"tidyverse"` which contains
+`"dplyr"` and `"ggplot2"`. 
+If that's not the case then __run on the console__ the command below 
+(do NOT include this command in your `Rmd`):
+
+
+Remember that you only need to install a package once! After a package has been 
+installed in your machine, there is no need to call `install.packages()` again 
+on the same package. What you should always invoke, in order to use the 
+functions in a package, is the `library()` function:
+
+```{r eval=FALSE}
+# (include these commands in your Rmd file)
+# load the packages
+library(tidyverse)
+```
+
+__About loading packages:__ Another rule to keep in mind is to always load any 
+required packages at the very top of your script files (`.R` or `.Rmd` or `.Rnw` files). 
+Avoid calling the `library()` function in the middle of a script. Instead, 
+load all the packages before anything else.
+
+
+
+### 1.2) Data `starwars`
+
+The data file for this lab has to do with Star Wars characters. 
+The dataset is part of the `dplyr` package: `starwars`. So, assuming that you
+loaded the package `"dplyr"`, then simply type the name of the object:
+`starwars`
+
+```{r read, eval = FALSE}
+# assuming you loaded dplyr ...
+starwars
+```
+
+
+-----
+
+
+# Part I) Basic `"dplyr"` verbs
+
+To make the learning process of `"dplyr"` gentler, Hadley Wickham proposes 
+beginning with a set of five _basic verbs_ or operations for data frames 
+(each verb corresponds to a function in `"dplyr"`):
+
+- __filter__: keep rows matching criteria
+- __select__: pick columns by name
+- __mutate__: add new variables
+- __arrange__: reorder rows
+- __summarise__: reduce variables to values
+
+I've slightly modified Hadley's list of verbs: 
+
+- `filter()`, `slice()`, and `select()`: subsetting and selecting rows and columns
+- `mutate()`: add new variables
+- `arrange()`: reorder rows
+- `summarise()`: reduce variables to values
+- `group_by()`: grouped (aggregated) operations
+
+
+-----
+
+
+## 2) Filtering, slicing, and selecting
+
+`slice()` allows you to select rows by position:
+
+```{r}
+# first four rows
+four_rows <- slice(starwars, 1:4)
+four_rows
+```
+
+`filter()` allows you to select rows by defining a condition (which could be 
+simple or compound):
+
+```{r}
+# subset rows given a simple condition
+# (height greater than 210 cm)
+gt_210 <- filter(starwars, height > 210)
+gt_210
+```
+
+```{r}
+# subset rows given a compound condition
+filter(starwars, height > 210 & mass <= 90)
+```
+
+
+`select()` allows you to select one or more columns by name:
+
+```{r}
+# columns by name
+name_mass <- select(starwars, name, mass)
+name_mass
+```
+
+
+### 2.1) Your turn:
+
+a) use `slice()` to subset the data by selecting the first 5 rows.
+
+```{r}
+# your code
+five_rows <- slice(starwars, 1:5)
+five_rows
+```
+
+
+b) use `slice()` to subset the data by selecting rows 3, 6, 9, ..., 30. 
+_Optional hint_: `seq()` is your friend.
+
+```{r}
+# your code
+three_rows <- slice(starwars, seq(3, 30, 3))
+three_rows
+```
+
+
+c) use `slice_tail()` to subset the data by selecting the last 5 rows.
+
+```{r}
+# your code
+last_five <- slice_tail(starwars, n=5)
+last_five
+```
+
+
+d) use `filter()` to subset those individuals with mass less than 50 kg.
+
+```{r}
+# your code
+less_fifty <- filter(starwars, mass < 50)
+less_fifty
+```
+
+
+e) use `filter()` to subset rows with a `sex` category of `none`.
+
+```{r}
+# your code
+sex_none <- filter(starwars, sex=='none')
+sex_none
+```
+
+
+f) use `filter()` to subset rows of individuals with with blond or blonde hair color
+
+```{r}
+# your code
+blond_hair <- filter(starwars, hair_color=='blond')
+blond_hair
+```
+
+
+g) use `filter()` and then `select()`, to subset rows of individuals from `Alderaan`,
+and then display their names.
+
+```{r}
+# your code
+filtered <- filter(starwars, homeworld == 'Alderaan')
+names_Alderaan <- select(filtered, name, homeworld)
+names_Alderaan
+```
+
+
+h) use `"dplyr"` functions to display the names of individuals with green
+skin color.
+
+```{r}
+# your code
+filtered_green <- filter(starwars, skin_color=='green')
+names_skingreen <- select(filtered_green, name, skin_color)
+names_skingreen
+```
+
+
+i) find how to `select()` the name, height, and mass, of male individuals, 
+with brown or black hair color.
+
+```{r}
+# your code
+male = filter(starwars, hair_color %in% c('brown','black'))
+selected =  select(male, name, height, mass, sex)
+selected_male = filter(selected, sex=='male')
+selected_male
+```
+
+
+j) find how to select the name and homeworld, of human female individuals.
+
+```{r}
+# your code
+female <- filter(starwars, sex=='female')
+name_home_female <- select(female, name, homeworld, sex)
+name_home_female
+```
+
+
+-----
+
+
+## 3) Adding new variables: `mutate()`
+
+Another basic verb is `mutate()` which allows you to add new variables.
+Let's create a small data frame for the female individuals with three columns: 
+`name`, `height`, and `mass`:
+
+```{r}
+# creating a small data frame step by step
+fem <- filter(starwars, sex == 'female')
+fem <- select(fem, name, height, mass)
+fem <- slice(fem, c(1, 2, 5, 6, 8))
+fem
+```
+
+Now, let's use `mutate()` to (temporarily) add a column with the ratio 
+`height / mass`:
+
+```{r results='hide'}
+mutate(fem, height / mass)
+```
+
+You can also give a new name, like: `ht_wt = height / mass`:
+
+```{r results='hide'}
+mutate(fem, ht_wt = height / mass)
+```
+
+In order to permanently change the data, you need to assign the changes to 
+an object:
+
+```{r results='hide'}
+fem2 <- mutate(fem, ht_m = height * 0.0254, wt_kg = mass * 0.4536)
+fem2
+```
+
+
+-----
+
+
+## 4) Reordering rows: `arrange()`
+
+The next basic verb of `"dplyr"` is `arrange()` which allows you to reorder 
+rows. For example, here's how to arrange the rows of `fem` by `height`
+
+```{r results='hide'}
+# order rows by height (increasingly)
+arrange(fem, height)
+```
+
+By default `arrange()` sorts rows in increasing order. To arrange rows in 
+descending order you need to use the auxiliary function `desc()`.
+
+```{r results='hide'}
+# order rows by height (decreasingly)
+arrange(fem, desc(height))
+```
+
+```{r results='hide'}
+# order rows by height, and then mass
+arrange(fem, height, mass)
+```
+
+
+
+### 4.1) Your Turn:
+
+a) using the data frame `fem`, add a new variable `product` with the product of 
+`height` and `mass`.
+
+```{r}
+# your code
+mutate(fem, product= height/mass)
+```
+
+
+b) create a new data frame `fem3`, by adding columns `log_height` and `log_mass`
+with the log transformations of `height` and `mass`.
+
+```{r}
+# your code
+fem3= mutate(fem, log_height= log(height), log_mass= log(mass))
+fem3
+```
+
+
+c) use the original data frame to `filter()` and `arrange()` those individuals 
+with height less than 150 cm tall, in increasing order by height.
+
+```{r}
+# your code
+filtered_heights = filter(starwars, height <150)
+arrange(filtered_heights, height)
+```
+
+
+d) display the name, homeworld, and species, of the top-5 tallest individuals.
+
+```{r}
+# your code
+top_heights = arrange(starwars, desc(height))
+selected_top = select(top_heights, name, homeworld, species)
+top_five = slice(selected_top, 1:5)
+top_five
+```
+
+
+e) display the name, homeworld, and species, for the top-5 heaviest individuals.
+
+```{r}
+# your code
+top_mass = arrange(starwars, desc(mass))
+selected_mass = select(top_mass, name, homeworld, species)
+top_five_mass = slice(selected_top, 1:5)
+top_five_mass
+```
+
+
+-----
+
+
+## 5) Summarizing values with `summarise()`
+
+The next verb is `summarise()`. Conceptually, this involves applying a function
+on one or more columns, in order to summarize values. This is probably easier 
+to understand with one example.
+
+Say you are interested in calculating the average height of all individuals.
+To do this "a la dplyr" you use `summarise()`, or its synonym function 
+`summarize()`:
+
+```{r}
+# average height (removing missing values)
+summarise(starwars, avg_height = mean(height, na.rm = TRUE))
+```
+
+What if you want to calculate some 
+summary statistics for `height`: min, median, mean, and max?
+
+```{r}
+# some stats for height (dplyr)
+summarise(
+  starwars, 
+  min = min(height, na.rm = TRUE),
+  median = median(height, na.rm = TRUE),
+  avg = mean(height, na.rm = TRUE),
+  max = max(height, na.rm = TRUE)
+)
+```
+
+
+
+## 6) Grouped operations
+
+To actually appreciate the power of `summarise()`, we need to introduce the 
+other major basic verb in `"dplyr"`: `group_by()`. This is the function that 
+allows you to perform data aggregations, or _grouped operations_.
+
+Let's see the combination of `summarise()` and `group_by()` to calculate the
+average salary by team:
+
+```{r results='hide'}
+# average height, grouped by homeworld
+summarise(
+  group_by(starwars, homeworld),
+  avg_salary = mean(height, na.rm = TRUE)
+)
+```
+
+
+Here's a more fancy example: average mass and height, by homeworld, displayed
+in desceding order by average height:
+
+```{r results='hide'}
+arrange(
+  summarise(
+    group_by(starwars, homeworld),
+    avg_height = mean(height, na.rm = TRUE),
+    avg_mass = mean(mass, na.rm = TRUE)),
+  desc(avg_height)
+)
+```
+
+
+### 6.1) Your turn:
+
+a) use `summarise()` to get the largest height value.
+
+```{r}
+# your code
+summarise(starwars, max(height, na.rm=TRUE))
+```
+
+
+b) use `summarise()` to get the standard deviation of `mass`.
+
+```{r}
+# your code
+summarise(starwars,sd(mass, na.rm=TRUE))
+```
+
+
+c) use `summarise()` and `group_by()` to display the median of mass,
+by homeworld
+
+```{r}
+# your code
+summarise(
+  group_by(starwars, homeworld),
+  meidan_mass = median(mass, na.rm=TRUE))
+```
+
+
+d) display the average mass by gender, in ascending order,
+
+```{r}
+# your code
+arrange(
+  summarise(
+    group_by(starwars, gender),
+    average_mass = mean(mass, na.rm=TRUE)
+  )
+)
+```
+
+
+e) obtain the mean and standard deviation of `height`, for female characters.
+
+```{r}
+# your code
+summarise(
+  group_by(filter(starwars, sex=='female'), sex),
+  average_mean= mean(height,na.rm=TRUE),
+  average_sd=sd(height,na.rm=TRUE)
+)
+```
+
+
+-----
+
+
+# Part II) First contact with `ggplot()`
+
+The package `"ggplot2"` is probably the most popular package in R to create
+_beautiful_ static graphics. Compared to the functions in the base package 
+`"graphics"`, the package `"ggplot2`" follows a somewhat different philosophy, 
+and it tries to be more consistent and modular as possible.
+
+- The main function in `"ggplot2"` is `ggplot()`
+
+- The main input to `ggplot()` is a data frame object.
+
+- You can use the internal function `aes()` to specify what columns of the data 
+frame will be used for the graphical elements of the plot.
+
+- You must specify what kind of _geometric objects_ or __geoms__ will be
+displayed: e.g. `geom_point()`, `geom_bar()`, `geom_boxpot()`.
+
+- Pretty much anything else that you want to add to your plot is controlled 
+by auxiliary functions, especially those things that have to do with the format,
+rather than the underlying data.
+
+- The construction of a ggplot is done by _adding layers_ with the `+` operator.
+
+
+
+## 7) Scatterplots
+
+Let's start with a scatterplot of `height` and `mass`
+
+```{r scatter1}
+# scatterplot (option 1)
+ggplot(data = starwars) +
+  geom_point(aes(x = height, y = mass))
+```
+
+- `ggplot()` creates an object of class `"ggplot"`
+- the main input for `ggplot()` is `data` which must be a data frame
+- then we use the `"+"` operator to add a layer
+- the geometric object (geom) are points: `geom_points()`
+- `aes()` is used to specify the `x` and `y` coordinates, by taking columns
+`points` and `salary` from the data frame
+
+The same scatterplot can also be created with this alternative, and more 
+common use of `ggplot()`
+
+```{r eval = FALSE}
+# scatterplot (option 2)
+ggplot(data = starwars, aes(x = height, y = mass)) +
+  geom_point()
+```
+
+
+### 7.1) Adding color
+
+Say you want to color code the points in terms of `sex`
+
+```{r scatter2}
+# colored scatterplot 
+ggplot(data = starwars, aes(x = height, y = mass)) +
+  geom_point(aes(color = sex))
+```
+
+
+### 7.2) Your turn:
+
+Open the ggplot2 cheatsheet.
+
+a) Use the data frame `fem` to make a scatterplot of `height` and `mass`.
+
+```{r}
+# your code
+ggplot(data=fem) +
+  geom_point(aes(x = height, y = mass))
+```
+
+
+b) Find out how to make another scatterplot of `height` and `mass`, 
+ using `geom_text()` to display the names of the individuals
+
+```{r}
+# your code
+ggplot(data=fem, aes(x = height, y = mass)) +
+  geom_text(aes(label=name))
+```
+
+
+c) Get a scatter plot of `height` and `mass`, for ALL the females, displaying
+their names with `geom_label()`.
+
+```{r}
+# your code
+ggplot(data = filter(starwars, sex == 'female'), aes(x = height, y=mass)) +
+  geom_label(aes(label=name))
+```
+
+
+d) Get a histogram of `mass` (for all individuals).
+
+```{r}
+# your code
+ggplot(data = starwars, aes(mass)) +
+  geom_histogram(binwidth = 100)
+```
+
+
+e) Get a density plot of `height` (for all individuals).
+
+```{r}
+# your code
+ggplot(data = starwars, aes(height)) +
+  geom_density(kernel='gaussian')
+```
+
+
+f) Get a barchart of the `sex` frequencies (for all individuals).
+
+```{r}
+# your code
+ggplot(data=starwars, aes(sex)) +
+  geom_bar()
+```
+

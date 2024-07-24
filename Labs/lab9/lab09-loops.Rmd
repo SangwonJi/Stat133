@@ -1,0 +1,337 @@
+---
+title: "Lab 9: Loops"
+subtitle: "Stat 133, Fall 2022"
+output: 
+  html_document:
+    toc: true
+---
+
+> ### Learning Objectives
+>
+> - Get familiar with the syntax of a `for` loop
+> - Get familiar with the syntax of a `while` loop
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### General Instructions
+
+- Write your descriptions, explanations, and code in an `Rmd` (R markdown) file.
+- Name this file as `lab09-first-last.Rmd`, where `first` and `last` are your
+first and last names (e.g. `lab09-gaston-sanchez.Rmd`).
+- Knit your `Rmd` file as an html document (default option).
+- Submit your `Rmd` and `html` files to bCourses, in the corresponding lab assignment.
+
+
+-----
+
+
+## About Loops
+
+- Many times we need to perform a procedure several times
+- In other words, we have to perform the same operation several times as long as some condition is fulfilled
+- For this purpose we use loops
+- The main idea is that of __iteration__ or __repetition__
+- R provides three basic paradigms to handle this situations: `for`, `repeat`, `while`
+
+
+-----
+
+
+## 1) Counting Letters
+
+Consider the following vector `letrs` which contains various letters:
+
+```{r}
+letrs <- c(
+  'y', 'd', 'g', 'a', 'b', 'w', 'k', 'n', 'r', 's', 
+  'a', 'u', 'u', 'j', 'v', 'n', 'j', 'g', 'i', 'o', 
+  'u', 'e', 'i', 'y', 'n', 'e', 'e', 'b', 'j', 'y', 
+  'l', 'o', 'a', 't', 'c', 'f', 'j', 'j', 'f', 'o', 
+  't', 't', 'z', 'l', 'y', 'w', 'f', 'y', 'h', 'l', 
+  'y', 'w', 'x', 'f', 'z', 'g', 's', 'j', 'f', 'x', 
+  'n', 'b', 'm', 'r', 'v', 'n', 'f', 'a', 's', 's', 
+  'h', 'f', 'w', 'l', 'f', 'h', 'g', 'k', 'q', 'd', 
+  'm', 'h', 'y', 'p', 'y', 'w', 'n', 't', 'g', 'm', 
+  'v', 'l', 'p', 'a', 'm', 'u', 'f', 'q', 'i', 'g'
+)
+```
+
+
+### 1.1) Counting `a`'s with vectorized code
+
+Say we are interested in counting the number of letters `"a"`. This can be 
+easily done in R with some vectorized code:
+
+```{r}
+sum(letrs == 'a')
+```
+
+For learning purposes, we are going to ask you to forget about vectorization
+for a moment. And instead let's see how to use __loops__.
+
+
+### 1.2) Counting `a`'s with a `for` loop
+
+Alternatively, we can also write a `for` loop that iterates through each 
+element of `letrs`, testing whether we have an `"a"`, and if yes, the count 
+increases by one.
+
+```{r}
+# start at count zero
+count_a = 0
+
+for (pos in 1:length(letrs)) {
+  # increase count if letter is an 'a'
+  if (letrs[pos] == 'a') {
+    count_a = count_a + 1
+  }
+}
+
+count_a
+```
+
+
+### 1.3) Your Turn: number of letters different from `"a"`
+
+Consider the vector `letrs`. Adapt the __for__ loop in order to count
+the number of letters __different__ from `"a"`
+
+```{r}
+# your code
+count_different = 0 
+
+for (pos in 1:length(letrs)) {
+  if (letrs[pos] != 'a') {
+    count_different = count_different + 1 
+  }
+}
+
+count_different
+
+```
+
+
+-----
+
+
+## 2) Counting `a`'s with a `while()` loop
+
+Alternatively, we can also write a `while` loop that iterates through each 
+element of `letrs`, testing whether we have an `"a"`, and if yes, the count 
+increases by one.
+
+```{r}
+# start at count zero
+count_a = 0
+
+# initialize iterator
+pos = 1
+
+
+while (pos <= length(letrs)) {
+  # increase count if letter is an 'a'
+  if (letrs[pos] == 'a') {
+    count_a = count_a + 1
+  }
+  # increase iterator
+  pos = pos + 1
+}
+
+count_a
+```
+
+
+### 2.1) Your Turn: number of `a` or `u`
+
+Consider the vector `letrs`. Adapt the __while__ loop in order to count
+the number of letters equal to `a` or `u`
+
+```{r}
+# your code
+count_a_u = 0
+
+pos = 1
+
+while (pos <= length(letrs)) {
+  if(letrs[pos] %in% c('a', 'u')) {
+    count_a_u = count_a_u + 1
+  }
+  pos = pos +1
+}
+
+count_a_u
+```
+
+
+-----
+
+
+## 3) Your Turn: number of `f` or `w` in even positions
+
+Consider the vector `letrs`. Let's focus on the number of letters equal to `f` 
+or `w` that are in even positions (e.g. 2, 4, ..., 100)
+
+
+### 3.1) Your Turn: `for` loop
+
+Write a __for__ loop in order to count
+the number of letters equal to `f` or `w` that are in even positions (e.g. 
+2, 4, ..., 100). _Hint_ the function `seq()` is your friend.
+
+```{r}
+# your for loop
+count_even = 0
+
+pos = 1
+
+for(pos in seq(2, 100, 2)) {
+  if(letrs[pos] %in% c('f', 'w')) {
+    count_even = count_even + 1
+  }
+  pos = pos +1
+}
+
+count_even
+```
+
+
+### 3.2) Your Turn: `while` loop
+
+Write a __while__ loop in order to count
+the number of letters equal to `f` or `w` that are in even positions (e.g. 
+2, 4, ..., 100).
+
+```{r}
+# your while loop
+count_even_f_w = 0
+
+pos = 1
+
+while (pos <= length(letrs)) {
+  if(letrs[pos] %in% c('f', 'w') %in% seq(1,100,2)) {
+    count_even_f_w = count_even_f_w + 1
+  }
+  pos = pos +1
+}
+
+count_even_f_w
+
+```
+
+
+-----
+
+
+## 4) Stopping a loop with `break`
+
+Say we are interested in counting the number of `x`, `y` and `z` letters,
+using a while loop, but this time, we only want to count until we get the 
+fifth occurrence. When this happens, we `break` the loop.
+
+```{r}
+# start at count zero
+count_xyz = 0
+
+for (pos in 1:length(letrs)) {
+  # increase count if letter is x, y, or z
+  if (letrs[pos] %in% c('x', 'y', 'z')) {
+    count_xyz = count_xyz + 1
+  }
+  # break loop if count gets to fifth occurrence
+  if (count_xyz == 5) {
+    break
+  }
+}
+
+count_xyz
+```
+
+
+
+### 4.1) Your Turn: counting vowels
+
+Consider the vector `letrs`. Write a __for__ loop in order to count
+the number of vowels, until reaching exactly 15 vowels. How many iterations were
+necessary to obtain 15 vowels?
+
+```{r}
+# your code
+count_vowels=0
+
+for (pos in 1:length(letrs)) {
+  if (letrs[pos] %in% c('a','e','i','o','u')) {
+    count_vowels = count_vowels + 1
+  }
+  if (count_vowels == 15) {
+    break
+  }
+}
+
+count_vowels
+```
+
+
+-----
+
+
+## 5) Your Turn: Summation Series
+
+Write a for loop to compute the following series. Your loop should start at 
+step $k=0$ and stop at step $n$. Test your code with
+different values for $n$. And use a vector to store each k-th term at each 
+iteration.
+Does the series converge as $n$ increase?
+
+$$
+\sum_{k=0}^{n} \frac{1}{2^k} = 1 + \frac{1}{2} + \frac{1}{4} + \frac{1}{8} + \dots + \frac{1}{2^n}
+$$
+
+```{r}
+# your code
+n = 10 
+series =0
+
+for (k in 0:n) {
+  th = 1/(2^k)
+print(th)
+series[k+1] = th
+}
+```
+- The values are decreasing divided by 2. 
+
+-----
+
+
+## 6) Your Turn: Geometric Sequence
+
+A sequence such as $3, 6, 12, 24, 48$ is an example of a geometric sequence. 
+In this type of sequence, the $n$-th term is obtained as: 
+
+$$
+a_n = a_1 \times r^{n-1}
+$$
+
+where: $a_1$ is the first term, $r$ is the common ratio, and $n$ is the number of 
+terms.
+
+Write a for loop to compute the sum of the first $n$ terms of:
+3 + 6 + 12 + 24 + ... 
+Test your code with different values for $n$. Does the series converge as $n$ 
+increase?
+
+```{r}
+# your code
+a_1 = 3 
+r= 2
+sum = 0
+
+for (n in 1:10) {
+  a_n = a_1 * r^(n-1)
+  sum = sum +a_n 
+  print(a_n)
+}
+```
+- The values are increasing in numbers multipled by 2.

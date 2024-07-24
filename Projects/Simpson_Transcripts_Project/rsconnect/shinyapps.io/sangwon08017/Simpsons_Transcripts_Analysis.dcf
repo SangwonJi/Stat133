@@ -1,0 +1,13 @@
+name: Simpsons_Transcripts_Analysis
+title: Simpsons_Transcripts_Analysis
+username:
+account: sangwon08017
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9495604
+bundleId: 7487561
+url: https://sangwon08017.shinyapps.io/Simpsons_Transcripts_Analysis/
+when: 1690110341.97705
+lastSyncTime: 1690110341.97707
+asMultiple: FALSE
+asStatic: FALSE

@@ -1,0 +1,129 @@
+---
+title: "Hw1_Sangwon_JI"
+output: html_document
+date: "2022-09-09"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **Question 1) REI Camp & Hike Product**
+
+## **Osprey Archeon 30 Pack - Men's**
+
+### **Link for the product**
+
+<https://www.rei.com/product/164401/osprey-archeon-30-pack-mens>
+
+### **Image of the Bag**
+
+![**Osprey Archeon 30 Pack**](https://www.rei.com/media/40af0971-219d-4fd9-b96f-84ccec72b5ee?size=2000.png)
+
+### **Description of the product**
+
+> **Made for hiking, commuting and traveling, the streamlined men's Osprey Archeon 30 pack hauls your must-haves wherever the day takes you---from the natural world to the urban jungle.**
+
+### **Features**
+
+-   Front zipper access makes it easy to stash and retrieve your stuff
+-   Constructed with Global Recycle Standard (GRS)-certified recycled materials and a C0 PFC-free durable water repellent (DWR) finish that sloughs off moisture
+-   GRS ensures accurate content claims and good working conditions while minimizing harmful environmental and chemical impacts
+-   Trail-specific additions include an internal reservoir sleeve, dual ice axe loops and webbing lash points; reservoir sleeve can fit up to a 3L reservoir (not included)
+-   Included removable raincover keeps your gear dry if the weather turns
+-   Dual-access side pockets secure your water bottles and snacks; dual low-profile, stretch-woven hipbelt stash pockets hold the small stuff
+-   HDPE framesheet and dual profiled aluminum alloy stays spread the load across the entire back panel
+-   Adjustable harness helps you get a perfect fit
+-   Mesh-covered bumped foam allows for ventilation while keeping the load close to body
+
+### **Technical Specs**
+
+| **Categories**                 |                                                    **Descriptions**                                                    |
+|------------------|:----------------------------------------------------:|
+| **Best Use**                   |                                                     Casual Hiking                                                      |
+| **Bag style**                  |                                                        Backpack                                                        |
+| **Frame Type**                 |                                                     Internal Frame                                                     |
+| **Gear Capacity (L)**          |                                                       30 liters                                                        |
+| **Gear Capacity (cu. in.)**    |                                                   1,831 cubic inches                                                   |
+| **Weight**                     |                                                    3 lbs. 15.5 oz.                                                     |
+| **Fits Torso Length (in.)**    |                                                      17-22 inches                                                      |
+| **Fits Waist/Hips**            |                                                      25-52 inches                                                      |
+| **Material(s)**                | Main: 940x1880-denier recycled nylon (bluesign® approved); lining: 210-denier recycled nylon; mesh-covered bumped foam |
+| **Frame Material**             |                                                    HDPE framesheet                                                     |
+| **Number of Stays**            |                                                           2                                                            |
+| **Pack Access**                |                                                       Top/Front                                                        |
+| **Number of Exterior Pockets** |                                                  5 + main compartment                                                  |
+| **Hipbelt**                    |                                                          Yes                                                           |
+| **Hipbelt Pockets**            |                                                          Yes                                                           |
+| **Raincover Included**         |                                                          Yes                                                           |
+| **Reservoir Compatible**       |                                                          Yes                                                           |
+| **Dimensions**                 |                                                  26 x 12 x 10 inches                                                   |
+| **Gender**                     |                                                         Men's                                                          |
+| **Sustainability**             |                    Contains recycled materials Contains materials that meet the bluesign® criteria                     |
+
+# **Question 2) Cooking Recipe**
+
+## **Buttermilk French Toast**
+
+### **Link of the recipe**
+
+<https://www.epicurious.com/recipes/food/views/buttermilk-french-toast-358115>
+
+##### **Editor's Note**
+
+*This recipe was originally published in November 2008.*
+
+### **How the meal will look when it's done**
+
+![**Buttermilk French Toast** [^1]](https://assets.epicurious.com/photos/61f423e75720637c079ef5af/1:1/w_2240,c_limit/ButtermilkFrenchToast_RECIPE_20220125_1843_V1_final.jpg)
+
+[^1]: Photo by Isa Zapata, Prop Styling by Stephanie De Luca, Food Styling by Yekaterina Boystova
+
+[^2]: Photo by Isa Zapata, Prop Styling by Stephanie De Luca, Food Styling by Yekaterina Boystova
+
+### **Ingredients**
+
+##### `Makes 4 Servings`
+
+-   1 ½ cups well-shaken buttermilk
+-   4 large eggs
+-   3 tablespoons sugar
+-   ¼ teaspoon salt
+-   12(½-inch-thick) slices challah (from a 1-pound loaf; not end slices)
+-   4 ½ tablespoons unsalted butter; divided
+
+#### **Accompaniment**
+
+-   Warm maple syrup
+
+#### **Cooking Steps**
+
+##### **Step 1**
+
+Preheat oven to 200°F.
+
+##### **Step 2**
+
+Whisk together buttermilk, eggs, sugar, and salt in a bowl. Pour into a large 4-sided sheet pan, then add bread in 1 layer and soak, turning occasionally, until bread has absorbed all liquid but is not falling apart, about 20 minutes.
+
+##### **Step 3**
+
+Heat 1½ tablespoon butter in a 12-inch nonstick skillet over medium-high heat until foam subsides. Transfer 4 bread slices with a slotted spatula to skillet and cook, turning once, until slightly puffed and golden brown, about 3 minutes total. Transfer to a large shallow baking pan and keep warm in oven. Cook remaining bread in 2 batches, adding 1½ tablespoon butter between batches.
+
+# **Question 3)Euclidean Distance**
+
+### **Definition** [edit]
+
+------------------------------------------------------------------------
+
+The **Euclidean distance** between points **p** and **q** is the length of the **line segment** connecting them ($\overline{pq}$).
+
+In **Cartesian coordinates**, if **p** = ($p_{1},p_{2},\dots,p_{n}$) and **q** = ($q_{1},q_{2},\dots,q_{n}$) are two points in **Euclidean n-space**, then the distance (d) from **p** to **q**, or from **q** to **p** is given by the **Pythagorean formula**.
+
+$d$(**p**,**q**) = $d$(**q**,**p**) = $\sqrt{(q_{1}-p_{1})^2 + (q_{2}-p_{2})^2+\dots+(q_{n}-p_{n})^2} = \sqrt{\displaystyle\sum_{i=1}^{n}(q_{i}-p_{i})^2}$.
+
+The position of a point in a Euclidean *n*-space is a **Euclidean vector**. So, **p** and **q** may be represented as Euclidean vectors, starting from the origin of the space (initial point) with their tips (terminal points) ending at the two points. The **Euclidean norm**, or **Euclidean length**, or **magnitude** of a vector measures the length of the vector.
+
+$\|p\| = \sqrt{p_1^2+p_2^2+\dots+p_n^2} = \sqrt{p.p}$,
+
+where the last expression involves the **dot product**.
